@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Clicker Evolution</title>
+    <style>
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: #4caf50;
+            width: 0;
+        }
+
+        #comboCounter {
+            color: #ff5722;
+            font-weight: bold;
+        }
+
+        #frenzyStatus {
+            color: red;
+            display: none;
+        }
+
+        .math-effect {
+            position: absolute;
+            pointer-events: none;
+            font-size: 1.2em;
+            animation: floatUp 1s ease-out;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Math Clicker Evolution</h1>
+
+    <!-- Click Section -->
+    <div>
+        <p>Clicks: <span id="counter">0</span></p>
+        <button id="clickButton">Click Me!</button>
+        <p>Click Power: <span id="clickPercentage">+0%</span></p>
+        <p>Combo: <span id="comboCounter">1.00x</span></p>
+        <p id="frenzyStatus">FRENZY ACTIVE!</p>
+    </div>
+
+    <!-- Upgrades Section -->
+    <div>
+        <p>Upgrades: <span id="counter1">0</span> (Cost: <span id="cost">2</span>)</p>
+        <button id="clickButton1" disabled>Buy Me!</button>
+        <p>Upgrade Count: <span id="upgradePercentage">0%</span></p>
+    </div>
+
+    <!-- Power Boost Section -->
+    <div>
+        <p>Power Boost: <span id="counter4">0</span> (Cost: <span id="cost4">10</span> upgrades)</p>
+        <button id="clickButton4" disabled>Buy Power Boost!</button>
+        <p>Boost Progress: <span id="boostPercentage">0%</span></p>
+        <div class="progress-bar">
+            <div id="boostProgressBar" class="progress"></div>
+        </div>
+    </div>
+
+    <!-- Prestige Section -->
+    <div>
+        <p>Prestige Points: <span id="prestigePoints">0</span></p>
+        <button id="prestigeButton" disabled>Prestige (25+ upgrades)</button>
+    </div>
+
+    <!-- New Math Systems -->
+    <div>
+        <h3>Mathematical Systems</h3>
+        <p>Fractal Level: <span id="fractalLevel">1</span></p>
+        <p>Prime Bonus: <span id="primeBonus">1x</span></p>
+        <p>Derivative Boost: <span id="derivativeValue">0</span></p>
+        <button id="quantumButton" disabled onclick="applyQuantumGate()">Quantum Boost (Cost: 314
+            clicks)</button>
+    </div>
+
+    <script>
+        // Core Variables
+        let counter = 0;
+        let cost = 2;
+        let clickreward = 1;
+        let upgrades = 0;
+        let baseClickValue = 1;
+        const maxUpgrades = 100;
+        let upgradesRequired = 10;
+        let boostProgress = 0;
+        let upgradeInterval;
+        let upgradesPerSecond = 0.35;  // This is the *rate*
+
+        // Upgrade Tracking
+        let upgradeCount = 0;
+        let boostUpgrades = 0;
+
+        // Combo System
+        let combo = 1;
+        let lastClickTime = 0;
+        const comboDecayTime = 2000;
+        let comboTimeout;
+
+        // Click Frenzy
+        let clickHistory = [];
+        const frenzyThreshold = 5;
+        const frenzyWindow = 2000;
+        let frenzyActive = false;
+
+        // Prestige System
+        let prestigePoints = 0;
+
+        // New Math Systems
+        let fractalLevel = 1;
+        let fractalMultiplier = 1;
+        let primeBonus = 1;
+        let derivativeHistory = [];
+        let derivativeSampleRate = 1000;
+        let quantumState = [0, 1];
+        const hadamardGate = [
+            [1 / Math.sqrt(2), 1 / Math.sqrt(2)],
+            [1 / Math.sqrt(2), -1 / Math.sqrt(2)]
+        ];
+
+        // Calculate click power with math systems
+        function calculateClickPower() {
+            baseClickValue = Math.pow(1.35, upgradeCount) *
+                (1 + prestigePoints * 0.01) *
+                fractalMultiplier *
+                primeBonus *
+                (1 + calculateDerivative() / 100);
+            clickreward = Math.round(baseClickValue);
+            updatePercentages();
+        }
+
+        // Update UI percentages
+        function updatePercentages() {
+            const upgradePercent = Math.min((upgrades / maxUpgrades) * 100, 100);
+            document.getElementById('upgradePercentage').textContent = `${Math.round(upgradePercent)}%`;
+
+            const clickPowerPercent = (baseClickValue - 1) * 100;
+            document.getElementById('clickPercentage').textContent = `+${Math.round(clickPowerPercent)}%`;
+        }
+
+        // Enhanced click handler
+        function incrementCounter() {
+            const now = Date.now();
+            createMathEffect();
+
+            // Combo System
+            combo = (now - lastClickTime < comboDecayTime) ? combo + 0.015 : 1;
+            lastClickTime = now;
+            clearTimeout(comboTimeout);
+            comboTimeout = setTimeout(() => combo = 1, comboDecayTime);
+
+            // Click Frenzy
+            clickHistory.push(now);
+            if (clickHistory.length > frenzyThreshold) clickHistory.shift();
+            if (clickHistory.length === frenzyThreshold &&
+                clickHistory[frenzyThreshold - 1] - clickHistory[0] <= frenzyWindow) {
+                activateFrenzy();
+                clickHistory = [];
+            }
+
+            // Apply rewards with math systems
+            const clickValue = Math.round(clickreward * combo * (frenzyActive ? 10 : 1));
+            counter += clickValue;
+
+            // Prevent counter from going below zero
+            counter = Math.max(0, counter);
+
+            derivativeHistory.push(clickValue);
+            if (derivativeHistory.length > 10) derivativeHistory.shift();
+
+            // Update UI
+            document.getElementById('counter').innerText = counter;
+            document.getElementById('clickButton1').disabled = counter < cost;
+            document.getElementById('clickButton4').disabled = upgrades < upgradesRequired;
+            document.getElementById('comboCounter').innerText = combo.toFixed(2) + 'x';
+            document.getElementById('prestigeButton').disabled = upgrades < 25;
+
+            // Math system checks
+            checkPrimeBonuses();
+            updateFractalLevel();
+            checkQuantumState();
+        }
+
+        // Activate Frenzy Mode
+        function activateFrenzy() {
+            frenzyActive = true;
+            document.getElementById('frenzyStatus').style.display = 'block';
+            setTimeout(() => {
+                frenzyActive = false;
+                document.getElementById('frenzyStatus').style.display = 'none';
+            }, 5000);
+        }
+
+        // Prestige System
+        function prestige() {
+            if (upgrades >= 25) {
+                const s = 1 + (prestigePoints / 10);
+                const zeta = Array.from({ length: 1000 }, (_, n) =>
+                    1 / Math.pow(n + 1, s)).reduce((a, b) => a + b, 0);
+
+                prestigePoints += Math.floor(zeta * 10);
+                upgradeCount = 0;
+                upgrades = 0;
+                cost = 2;
+                primeBonus = 1;
+                fractalMultiplier = 1;
+                calculateClickPower();
+
+                document.getElementById('prestigePoints').innerText = prestigePoints;
+                document.getElementById('counter1').innerText = upgrades;
+                updatePercentages();
+            }
+        }
+
+        // Prime number system
+        function isPrime(num) {
+            for (let i = 2; i <= Math.sqrt(num); i++)
+                if (num % i === 0) return false;
+            return num > 1;
+        }
+
+        function checkPrimeBonuses() {
+            if (isPrime(upgrades)) {
+                primeBonus *= 1.618;
+                document.getElementById('primeBonus').textContent = `${primeBonus.toFixed(2)}x`;
+                createMathEffect();
+            }
+        }
+
+        // Mathematical effects
+        function createMathEffect() {
+            const effect = document.createElement('div');
+            effect.className = 'math-effect';
+            effect.textContent = `+${Math.round(clickreward * combo)}`;
+            effect.style.left = `${Math.random() * 80 + 10}%`;
+            document.body.appendChild(effect);
+            setTimeout(() => effect.remove(), 1000);
+        }
+
+        // Fractal growth system
+        function updateFractalLevel() {
+            fractalMultiplier = 1 + (Math.sqrt(upgrades) / 100);
+            fractalLevel = Math.floor(Math.log10(upgrades + 1)) + 1;
+            document.getElementById('fractalLevel').textContent = fractalLevel;
+        }
+
+        // Calculus system
+        function calculateDerivative() {
+            if (derivativeHistory.length < 2) return 0;
+            const dy = derivativeHistory[derivativeHistory.length - 1] - derivativeHistory[0];
+            const dt = derivativeHistory.length * 100;
+            const derivative = dy / dt;
+            document.getElementById('derivativeValue').textContent = derivative.toFixed(2);
+            return derivative;
+        }
+
+        // Quantum system
+        function applyQuantumGate() {
+            if (counter >= 314) {
+                counter -= 314;
+                quantumState = [
+                    hadamardGate[0][0] * quantumState[0] + hadamardGate[0][1] * quantumState[1],
+                    hadamardGate[1][0] * quantumState[0] + hadamardGate[1][1] * quantumState[1]
+                ];
+                baseClickValue *= Math.abs(quantumState[0]);
+                calculateClickPower();
+                document.getElementById('counter').innerText = counter; // Update counter
+            }
+            checkQuantumState(); // Update button state after applying
+        }
+
+        function checkQuantumState() {
+            document.getElementById('quantumButton').disabled = counter < 314;
+        }
+
+        // Existing functions with math integrations
+        function buyItem() {
+            if (counter >= cost) {
+                counter -= cost;
+                upgradeCount++;
+                upgrades++;
+                cost = Math.ceil(cost * 1.75);
+                calculateClickPower();
+
+                document.getElementById('counter').innerText = counter;
+                document.getElementById('cost').innerText = cost;
+                document.getElementById('counter1').innerText = upgrades;
+                updatePercentages();
+            }
+            document.getElementById('clickButton1').disabled = counter < cost;
+        }
+
+        function buyPowerBoost() {
+            if (upgrades >= upgradesRequired) {
+                upgrades -= upgradesRequired;
+
+                const totalUpgrades = upgradeCount + boostUpgrades;
+                if (totalUpgrades > 0) {
+                    const ratio = upgradeCount / totalUpgrades;
+                    upgradeCount = Math.max(0, Math.floor(upgrades * ratio));
+                    boostUpgrades = upgrades - upgradeCount;
+                }
+
+                boostProgress = 0;
+                startUpgradeInterval();
+                calculateClickPower();  //Recalculate click power
+
+                document.getElementById('counter4').innerText = upgrades;
+                document.getElementById('clickButton4').disabled = upgrades < upgradesRequired;
+            }
+        }
+
+        function startUpgradeInterval() {
+            if (!upgradeInterval) {
+                upgradeInterval = setInterval(upgradePerSecond, 1000);
+            }
+        }
+
+        function upgradePerSecond() {
+          if (boostProgress < 100) {
+                boostProgress += upgradesPerSecond; // Increment by a *percentage*
+                document.getElementById('boostPercentage').textContent = `${Math.min(boostProgress, 100).toFixed(2)}%`;
+                document.getElementById('boostProgressBar').style.width = `${Math.min(boostProgress, 100)}%`;
+            }
+
+            if (boostProgress >= 100) {
+                let newUpgrades = Math.floor(boostProgress / 100); // How many whole upgrades?
+                upgrades += newUpgrades;  // add to total
+                boostUpgrades += newUpgrades;   // track boost upgrades
+                boostProgress -= (newUpgrades * 100); // subtract correctly
+
+
+                document.getElementById('counter4').innerText = upgrades;
+                document.getElementById('counter1').innerText = upgrades;
+                updatePercentages();
+                document.getElementById('boostPercentage').textContent = `${Math.min(boostProgress, 100).toFixed(2)}%`; // update any remainder
+                document.getElementById('boostProgressBar').style.width = `${Math.min(boostProgress, 100)}%`;
+            }
+        }
+
+
+        //Event listeners
+        document.getElementById('clickButton').addEventListener('click', incrementCounter);
+        document.getElementById('clickButton1').addEventListener('click', buyItem);
+        document.getElementById('clickButton4').addEventListener('click', buyPowerBoost);
+        document.getElementById('prestigeButton').addEventListener('click', prestige);
+        document.getElementById('quantumButton').addEventListener('click', applyQuantumGate);
+
+        //Initial check of quantum button state
+        checkQuantumState();
+
+         startUpgradeInterval();
+
+    </script>
+</body>
+
+</html>
