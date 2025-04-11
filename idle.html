@@ -7,6 +7,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Math Clicker Evolution</title>
+    <style>
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: #4caf50;
+            width: 0;
+        }
+
+        #comboCounter {
+            color: #ff5722;
+            font-weight: bold;
+        }
+
+        #frenzyStatus {
+            color: red;
+            display: none;
+        }
+
+        .math-effect {
+            position: absolute;
+            pointer-events: none;
+            font-size: 1.2em;
+            animation: floatUp 1s ease-out;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+        }
+    </style>
 </head>
 
 <body>
