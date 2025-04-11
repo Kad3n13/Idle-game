@@ -1,0 +1,53 @@
+body {
+  font-faimly: 'Seoge UI;'
+  background-color: #1e12ef;
+  color: #e0e0f0;
+  text-align: center;
+  margin: 0;
+  padding: 2rem;
+}
+
+button {
+  background: linear-gradient(145deg, #3a3a4f, #2c2c3d);
+  color:#fff;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  margin: 10px;
+  cursor: pointer;
+  trasition: transfrom 0.2s, box-shadow 0.2s;
+}
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(100, 255, 218, 0.3);
+}
+h1 {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  color: #ffd700;
+}
+.progress-bar {
+  width: 100%;
+  height: 24px;
+  background-color: #444;
+  overflow: hidden;
+  box-shadow: inset 0 0 10px #000;
+}
+.progress {
+  height: 100%;
+  background: linear-gradient(90deg,#00e0ff, #00ffa2);
+  width: 0;
+  transition: width 0.3s ease-in-out;
+}
+#frenzyStatus {
+  color: #ff1744;
+  font-size; 1.5rem;
+  font-weight: bold;
+  animation: pulseGlow 3s infinite;
+  display: none;
+}
+@keyframes pulseGlow {
+  0%, 100% { text-shadow: 0 0 10px #ff1744; }
+  50% { text-shadow: 0 0 20 px #ff5252}
+}
